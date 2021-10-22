@@ -53,7 +53,7 @@ const render = () => {
     imageEdit.src = "images/edit.png";
     container.appendChild(imageEdit);
     const inputTask = document.createElement("input");
-    imageEdit.onclick = () => editElements(text, inputTask, container, item, imageEdit, imageDelete);
+    imageEdit.onclick = () => editElements(text, inputTask, container, item, imageEdit, imageDelete, newVal);
 
     const imageDelete = document.createElement("img");
     imageDelete.src = "images/close.png";
@@ -68,7 +68,7 @@ const editElements = (text, inputTask, container, item, imageEdit, imageDelete) 
   inputTask.value = text.innerText;
   container.replaceChild(inputTask, text);
   imageEdit.onclick = () => editTask(text, inputTask, container, item);
-  imageDelete.onclick = () => {
+  imageDelete.onclick = (newVal) => {
     inputTask.value = newVal;
     render();
   };
