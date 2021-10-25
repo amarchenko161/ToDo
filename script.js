@@ -1,27 +1,45 @@
-let allTasks = JSON.parse(localStorage.getItem("Todo")) || [];
+let allTasks = [];
 let valueInput = "";
 let input = null;
 
-window.onload = init = () => {
+window.onload = init = async () => {
   input = document.getElementById("add-task");
   input.addEventListener("change", updateValue);
+  const resp = await fetch('http://localhost:8000/allTasks', {
+    method: 'GET'
+  });
+  const result = await resp.json();
+  allTasks = result.data;
   render();
 };
 
-const onClickButton = () => {
+const onClickButton = async () => {
   allTasks.push({
     text: valueInput,
     isCheck: false,
   });
-  localStorage.setItem("Todo", JSON.stringify(allTasks));
+  const resp = await fetch('http://localhost:8000/createTask', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8',
+      'Access-Control-Allow-Origin': '*'
+    },
+    body: JSON.stringify({
+      text: valueInput,
+      isCheck: false,
+    })
+  });
+  const result = await resp.json();
+  allTasks = result.data;
   valueInput = "";
   input.value = "";
   render();
 };
 
 const onClearBtn = () => {
-  allTasks = [];
-  localStorage.setItem("Todo", JSON.stringify(allTasks));
+  allTasks.map((element, index) => {
+    deleteTask(index);
+  })
   render();
 };
 
@@ -53,8 +71,7 @@ const render = () => {
     imageEdit.src = "images/edit.png";
     container.appendChild(imageEdit);
     const inputTask = document.createElement("input");
-    imageEdit.onclick = () => editElements(text, inputTask, container, item, imageEdit, imageDelete);
-
+    imageEdit.onclick = () => editElements(index, text, inputTask, container, item, imageEdit, imageDelete, newVal);
     const imageDelete = document.createElement("img");
     imageDelete.src = "images/close.png";
     container.appendChild(imageDelete);
@@ -63,34 +80,62 @@ const render = () => {
   });
 };
 
-
-const editElements = (text, inputTask, container, item, imageEdit, imageDelete) => {
+const editElements = (index, text, inputTask, container, item, imageEdit, imageDelete) => {
   inputTask.value = text.innerText;
   container.replaceChild(inputTask, text);
-  imageEdit.onclick = () => editTask(text, inputTask, container, item);
-  imageDelete.onclick = () => {
+  imageEdit.onclick = () => editTask(index, text, inputTask, container, item);
+  imageDelete.onclick = (newVal) => {
     inputTask.value = newVal;
     render();
   };
 }
 
-const editTask = (text, inputTask, container, item) => {
+const editTask = async (index, text, inputTask, container, item) => {
+  const resp = await fetch('http://localhost:8000/updateTask', {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8',
+      'Access-Control-Allow-Origin': '*'
+    },
+    body: JSON.stringify({
+      id: allTasks[index].id,
+      text: inputTask.value
+    })
+  });
+  const result = await resp.json();
+  allTasks = result.data;
   text.innerText = inputTask.value;
   item.text = inputTask.value;
   container.replaceChild(text, inputTask);
-  localStorage.setItem("Todo", JSON.stringify(allTasks));
   render();
 };
 
-const deleteTask = (index, content, container) => {
-  allTasks.splice(index, 1);
-  content.removeChild(container);
-  localStorage.setItem("Todo", JSON.stringify(allTasks));
+const deleteTask = async (index, content, container) => {
+  const resp = await fetch(`http://localhost:8000/deleteTask?id=${allTasks[index].id}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8',
+      'Access-Control-Allow-Origin': '*'
+    }
+  });
+  const result = await resp.json();
+  allTasks = result.data;
   render();
 };
 
-const onChangeCheckbox = (index) => {
-  allTasks[index].isCheck = !allTasks[index].isCheck;
-  localStorage.setItem("Todo", JSON.stringify(allTasks));
+const onChangeCheckbox = async (index) => {
+  const resp = await fetch('http://localhost:8000/updateTask', {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8',
+      'Access-Control-Allow-Origin': '*'
+    },
+    body: JSON.stringify({
+      id: allTasks[index].id,
+      isCheck: !allTasks[index].isCheck,
+    })
+  });
+  const result = await resp.json();
+  allTasks = result.data;
   render();
 };
