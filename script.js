@@ -8,7 +8,7 @@ window.onload = init = async () => {
   const resp = await fetch('http://localhost:8000/allTasks', {
     method: 'GET'
   });
-  let result = await resp.json();
+  const result = await resp.json();
   allTasks = result.data;
   render();
 };
@@ -29,7 +29,7 @@ const onClickButton = async () => {
       isCheck: false,
     })
   });
-  let result = await resp.json();
+  const result = await resp.json();
   allTasks = result.data;
   valueInput = "";
   input.value = "";
@@ -102,7 +102,7 @@ const editTask = async (index, text, inputTask, container, item) => {
       text: inputTask.value
     })
   });
-  let result = await resp.json();
+  const result = await resp.json();
   allTasks = result.data;
   text.innerText = inputTask.value;
   item.text = inputTask.value;
@@ -116,13 +116,9 @@ const deleteTask = async (index, content, container) => {
     headers: {
       'Content-Type': 'application/json;charset=utf-8',
       'Access-Control-Allow-Origin': '*'
-    },
-    body: JSON.stringify({
-      text: valueInput,
-      isCheck: false,
-    })
+    }
   });
-  let result = await resp.json();
+  const result = await resp.json();
   allTasks = result.data;
   render();
 };
@@ -139,7 +135,7 @@ const onChangeCheckbox = async (index) => {
       isCheck: !allTasks[index].isCheck,
     })
   });
-  let result = await resp.json();
+  const result = await resp.json();
   allTasks = result.data;
   render();
 };
